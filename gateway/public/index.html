@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <title>Sistem Nilai | Zero Trust Enterprise</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <div id="boot" class="boot">MEMVERIFIKASI SESI...</div>
+
+  <!-- ============ LOGIN GATEWAY ============ -->
+  <section id="view-login" class="login hidden" aria-label="Login Zero Trust Gateway">
+    <div class="login-inner">
+      <div class="login-card">
+        <div class="login-head"><span data-icon="shield" data-size="20"></span><h1>ZERO TRUST GATEWAY</h1></div>
+        <div class="login-body">
+          <form id="login-form" novalidate>
+            <div class="field">
+              <label for="in-user">Username</label>
+              <input id="in-user" class="input" type="text" placeholder="ID Pengguna" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="64" required>
+            </div>
+            <div class="field">
+              <label for="in-pass">Password</label>
+              <input id="in-pass" class="input" type="password" placeholder="Kata Sandi" autocomplete="current-password" maxlength="256" required>
+            </div>
+            <div class="field">
+              <label for="in-device">X-Device-ID</label>
+              <div class="input-icon">
+                <span data-icon="hard-drive" data-size="16"></span>
+                <input id="in-device" class="input mono" type="text" placeholder="ID Perangkat Fisik" autocapitalize="characters" spellcheck="false" maxlength="64" required>
+              </div>
+            </div>
+            <button id="btn-login" type="submit" class="btn btn-primary btn-block"><span data-icon="fingerprint" data-size="16"></span><span class="btn-label">VERIFIKASI AKSES</span></button>
+          </form>
+          <div id="creds" class="creds hidden">
+            <div id="creds-title" class="creds-title"></div>
+            <div id="creds-grid" class="creds-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APLIKASI ============ -->
+  <div id="view-app" class="app hidden">
+    <div id="overlay" class="overlay hidden"></div>
+
+    <aside id="sidebar" class="sidebar" aria-label="Navigasi utama">
+      <div class="brand"><span data-icon="shield" data-size="20"></span><span>ZT-SYS</span></div>
+      <div class="session">
+        <div class="label-xs">Session Info</div>
+        <div id="session-name" class="session-name"></div>
+        <div class="chips"><span id="session-role" class="chip chip-role"></span><span id="session-nim" class="chip chip-mono hidden"></span></div>
+      </div>
+      <nav id="nav" class="nav"></nav>
+      <div id="sim-box" class="sim hidden">
+        <div class="label-xs">Kebijakan Simulator</div>
+        <label><input id="sim-toggle" type="checkbox"><span>Diluar Jam Kerja (21:00-07:00)</span></label>
+      </div>
+      <button id="btn-logout" type="button" class="disconnect"><span data-icon="power" data-size="16"></span><span>Disconnect</span></button>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button id="btn-menu" type="button" class="icon-btn menu-btn" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="sidebar"><span data-icon="menu" data-size="20"></span></button>
+        <h2 id="page-title"></h2>
+        <div class="topbar-badges">
+          <span id="pep-badge" class="badge-pep"><span class="dot"></span><span class="label">PEP ACTIVE</span></span>
+          <span class="badge-dev"><span data-icon="cpu" data-size="12"></span><span id="device-text"></span></span>
+        </div>
+      </header>
+
+      <main id="workspace" class="workspace">
+        <!-- Dosen: input nilai -->
+        <div id="view-dosen" class="view hidden">
+          <div id="dosen-empty" class="panel hidden"><div class="empty-state">Belum ada kelas yang Anda ampu.</div></div>
+          <div id="dosen-content" class="view hidden">
+            <div class="panel kelas-head">
+              <div class="kelas-main">
+                <span data-icon="folder-kanban" data-size="22"></span>
+                <div><div id="dosen-title" class="kelas-title"></div><div id="dosen-meta" class="kelas-meta"></div></div>
+              </div>
+              <span id="dosen-status" class="badge"></span>
+            </div>
+            <div class="panel">
+              <div class="panel-head">Input Nilai Mahasiswa</div>
+              <div class="table-wrap">
+                <table class="table table-stack">
+                  <thead><tr><th>NIM</th><th>Nama Mahasiswa</th><th class="num">Nilai Angka</th></tr></thead>
+                  <tbody id="dosen-tbody"></tbody>
+                </table>
+              </div>
+              <div class="panel-foot">
+                <button id="btn-simpan" type="button" class="btn btn-outline"><span data-icon="save" data-size="14"></span><span class="btn-label">SIMPAN DRAFT</span></button>
+                <button id="btn-finalisasi" type="button" class="btn btn-primary"><span data-icon="shield-check" data-size="14"></span><span class="btn-label">FINALISASI &amp; SINKRON</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mahasiswa: nilai saya -->
+        <div id="view-nilai" class="view hidden">
+          <div class="banner"><span data-icon="info" data-size="16"></span><div><b>Service Nilai (3001):</b> hanya nilai milik Anda pada kelas yang sudah <i>final</i> yang ditampilkan.</div></div>
+          <div class="panel">
+            <div class="panel-head">Nilai Saya</div>
+            <div class="table-wrap">
+              <table class="table table-stack">
+                <thead><tr><th>Kode MK</th><th>Mata Kuliah</th><th>Tahun Ajaran</th><th class="num">SKS</th><th class="num">Nilai</th></tr></thead>
+                <tbody id="nilai-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mahasiswa: transkrip -->
+        <div id="view-transkrip" class="view hidden">
+          <div class="banner"><span data-icon="info" data-size="16"></span><div><b>Service Transkrip (3002):</b> data di bawah ini ditarik langsung dari service transkrip dan bersifat <i>read-only</i>. Hanya menampilkan mata kuliah yang telah difinalisasi secara resmi oleh dosen pengampu.</div></div>
+          <div class="panel">
+            <div class="table-wrap">
+              <table class="table dark table-stack">
+                <thead><tr><th>Kode MK</th><th>Mata Kuliah</th><th class="num">SKS</th><th class="num">Nilai</th><th class="num">Huruf</th></tr></thead>
+                <tbody id="transkrip-tbody"></tbody>
+              </table>
+            </div>
+            <div class="panel-foot"><span id="transkrip-total" class="foot-note"></span></div>
+          </div>
+        </div>
+
+        <!-- Admin: cari transkrip -->
+        <div id="view-admin" class="view hidden">
+          <div class="panel">
+            <div class="panel-head">Pencarian Transkrip Terpusat</div>
+            <div class="panel-body">
+              <form id="admin-form" class="search-row" novalidate>
+                <label class="sr-only" for="admin-nim">NIM Mahasiswa</label>
+                <input id="admin-nim" class="input" type="text" inputmode="numeric" placeholder="Masukkan NIM Mahasiswa (contoh: 237006001)" autocomplete="off" maxlength="15">
+                <button id="btn-cari" type="submit" class="btn btn-dark"><span data-icon="search" data-size="14"></span><span class="btn-label">CARI DATA</span></button>
+              </form>
+            </div>
+          </div>
+          <div id="admin-result" class="panel hidden">
+            <div id="admin-result-title" class="panel-head"></div>
+            <div class="table-wrap">
+              <table class="table dark table-stack">
+                <thead><tr><th>Kode MK</th><th>Mata Kuliah</th><th class="num">SKS</th><th class="num">Nilai</th><th class="num">Huruf</th></tr></thead>
+                <tbody id="admin-tbody"></tbody>
+              </table>
+            </div>
+            <div class="panel-foot"><span id="admin-total" class="foot-note"></span></div>
+          </div>
+        </div>
+      </main>
+
+      <div id="resizer" class="resizer" role="separator" aria-orientation="horizontal" aria-label="Ubah tinggi log audit" tabindex="0"></div>
+      <section id="terminal" class="terminal" aria-label="Log audit gateway">
+        <div class="term-head">
+          <span data-icon="terminal" data-size="14"></span>
+          <span class="grow">GATEWAY_AUDIT_LOG (PEP)<span class="led"></span></span>
+          <button id="term-clear" type="button" class="term-btn">CLEAR</button>
+          <button id="term-max" type="button" class="term-btn" aria-label="Perbesar log audit"><span data-icon="maximize-2" data-size="12"></span></button>
+        </div>
+        <div id="term-body" class="term-body" role="log" aria-live="off"></div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
